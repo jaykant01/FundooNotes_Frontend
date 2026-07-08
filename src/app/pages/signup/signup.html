@@ -1,0 +1,215 @@
+<div class="page-wrapper">
+  <div class="card">
+
+    <!-- ── Left: Form ── -->
+    <div class="form-section">
+
+      <div class="fundoo-logo">
+        <h3>Fundoo Notesservice</h3>
+      </div>
+
+      <h1 class="title">Create your Google Account</h1>
+
+      <!-- ngForm gives us a template reference to the whole form -->
+      <form #signupForm="ngForm" (ngSubmit)="onSubmit(signupForm)" novalidate>
+
+        <!-- ── Name row ── -->
+        <div class="form-row">
+
+          <div class="field-wrap"
+               [class.error]="firstName.invalid && (firstName.touched || submitted())">
+            <input
+              id="firstName"
+              type="text"
+              name="firstName"
+              placeholder=" "
+              class="field-input"
+              [(ngModel)]="model.firstName"
+              #firstName="ngModel"
+              required
+              autocomplete="given-name"
+            />
+            <label for="firstName" class="field-label">First name</label>
+            <span class="error-msg" *ngIf="firstName.invalid && (firstName.touched || submitted())">
+              Enter first name
+            </span>
+          </div>
+
+          <div class="field-wrap">
+            <input
+              id="lastName"
+              type="text"
+              name="lastName"
+              placeholder=" "
+              class="field-input"
+              [(ngModel)]="model.lastName"
+              autocomplete="family-name"
+            />
+            <label for="lastName" class="field-label">Last name</label>
+          </div>
+
+        </div><!-- /form-row -->
+
+        <!-- ── Email ── -->
+        <div class="field-wrap"
+             [class.error]="emailField.invalid && (emailField.touched || submitted())">
+          <input
+            id="email"
+            type="email"
+            name="email"
+            placeholder=" "
+            class="field-input"
+            [(ngModel)]="model.email"
+            #emailField="ngModel"
+            required
+            email
+            autocomplete="email"
+          />
+          <label for="email" class="field-label">Email address</label>
+
+          <span class="error-msg" *ngIf="emailField.errors?.['required'] && (emailField.touched || submitted())">
+            Enter an email
+          </span>
+          <span class="error-msg" *ngIf="emailField.errors?.['email'] && emailField.touched">
+            Enter a valid email address
+          </span>
+        </div>
+
+        <!-- ── Passwords row ── -->
+        <div class="form-row password-row">
+
+          <div class="field-wrap"
+               [class.error]="password.invalid && (password.touched || submitted())">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              name="password"
+              placeholder=" "
+              class="field-input"
+              [(ngModel)]="model.password"
+              #password="ngModel"
+              required
+              minlength="8"
+              autocomplete="new-password"
+            />
+            <label for="password" class="field-label">Password</label>
+            <button type="button" class="eye-btn" (click)="togglePassword()" tabindex="-1">
+              <ng-container *ngIf="!showPassword()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </ng-container>
+              <ng-container *ngIf="showPassword()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </ng-container>
+            </button>
+
+            <span class="error-msg" *ngIf="password.errors?.['required'] && (password.touched || submitted())">
+              Enter a password
+            </span>
+            <span class="error-msg" *ngIf="password.errors?.['minlength'] && password.touched">
+              Use 8 or more characters
+            </span>
+          </div>
+
+          <div class="field-wrap"
+               [class.error]="(confirmPassword.touched || submitted()) && model.confirmPassword !== model.password">
+            <input
+              id="confirmPassword"
+              [type]="showConfirm() ? 'text' : 'password'"
+              name="confirmPassword"
+              placeholder=" "
+              class="field-input"
+              [(ngModel)]="model.confirmPassword"
+              #confirmPassword="ngModel"
+              required
+              autocomplete="new-password"
+            />
+            <label for="confirmPassword" class="field-label">Confirm</label>
+            <button type="button" class="eye-btn" (click)="toggleConfirm()" tabindex="-1">
+              <ng-container *ngIf="!showConfirm()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </ng-container>
+              <ng-container *ngIf="showConfirm()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </ng-container>
+            </button>
+
+            <span class="error-msg"
+                  *ngIf="(confirmPassword.touched || submitted()) && model.confirmPassword !== model.password">
+              Passwords don't match
+            </span>
+          </div>
+
+        </div><!-- /password-row -->
+
+        <p class="hint">Use 8 or more characters with a mix of letters, numbers &amp; symbols</p>
+
+        <!-- ── Actions ── -->
+        <div class="form-actions">
+          <button routerLink='' type="button" class="link-btn sign-in-btn" (click)="onSignIn()">Sign in instead</button>
+          <button type="submit" class="btn-next">Next</button>
+        </div>
+
+      </form>
+    </div><!-- /form-section -->
+
+    <!-- ── Right: Illustration ── -->
+    <div class="illustration-section">
+      <div class="shield-wrap">
+        <svg class="shield-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100 10 L180 45 L180 110 C180 160 140 195 100 210 C60 195 20 160 20 110 L20 45 Z"
+                fill="#4285F4"/>
+          <path d="M100 28 L164 57 L164 112 C164 154 130 183 100 196 C70 183 36 154 36 112 L36 57 Z"
+                fill="#5C9EF8" opacity="0.35"/>
+          <circle cx="100" cy="90" r="26" fill="white" opacity="0.95"/>
+          <path d="M58 148 Q58 120 100 120 Q142 120 142 148" fill="white" opacity="0.95"/>
+        </svg>
+
+        <div class="app-card card-youtube">
+          <svg viewBox="0 0 24 24" fill="#FF0000" width="22" height="22">
+            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/>
+          </svg>
+        </div>
+        <div class="app-card card-chat">
+          <svg viewBox="0 0 24 24" fill="#34A853" width="22" height="22">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+          </svg>
+        </div>
+        <div class="app-card card-maps">
+          <svg viewBox="0 0 24 24" fill="#EA4335" width="22" height="22">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+        </div>
+        <div class="app-card card-minus">
+          <svg viewBox="0 0 24 24" fill="#FBBC05" width="22" height="22">
+            <path d="M19 13H5v-2h14v2z"/>
+          </svg>
+        </div>
+      </div>
+
+      <p class="tagline">One account. All of Google<br>working for you.</p>
+    </div>
+
+  </div><!-- /card -->
+</div>

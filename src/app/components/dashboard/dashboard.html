@@ -1,0 +1,285 @@
+<app-navbar (menuToggle)="toggleDrawer()"></app-navbar>
+
+<div class="app-body">
+  <app-sidedrawer
+    [isOpen]="drawerOpen()"
+    (viewChange)="setView($event)">       <!-- ← listen to view changes -->
+  </app-sidedrawer>
+
+  <main class="main-content" [class.drawer-open]="drawerOpen()">
+    <div class="dashboard">
+
+      <!-- View title for archive/trash -->
+      @if (viewTitle) {
+        <h2 class="view-title">{{ viewTitle }}</h2>
+      }
+
+      @if (errorMessage()) {
+        <p class="api-error">{{ errorMessage() }}</p>
+      }
+
+      @if (isLoading()) {
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      }
+
+      <!-- ── NOTES VIEW ── -->
+      @if (currentView === 'notes') {
+
+        <!-- Composer -->
+        <div class="composer-wrap">
+          <div class="composer" [class.expanded]="isComposing()" [style.background]="newColor">
+
+            @if (!isComposing()) {
+              <div class="composer__collapsed" (click)="openCompose()">
+                <span class="composer__placeholder">Take a note...</span>
+                <div class="composer__actions-row">
+                  <button class="tool-btn" aria-label="New list" (click)="$event.stopPropagation()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h11v-2H7v2zm0 4h11v-2H7v2zM7 7v2h11V7H7z"/>
+                    </svg>
+                  </button>
+                  <button class="tool-btn" aria-label="New note with image" (click)="$event.stopPropagation()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (isComposing()) {
+              <div class="composer__expanded">
+                <input class="composer__title" type="text" placeholder="Title"
+                       [(ngModel)]="newTitle" name="noteTitle"/>
+                <textarea class="composer__body" placeholder="Take a note..."
+                          [(ngModel)]="newDescription" name="noteBody" rows="3"></textarea>
+                <div class="color-row">
+                  @for (c of colors; track c) {
+                    <button class="color-dot" [style.background]="c"
+                            [class.selected]="newColor === c"
+                            (click)="newColor = c"></button>
+                  }
+                </div>
+                <div class="composer__footer">
+                  <div class="composer__tools">
+                    <button class="tool-btn" aria-label="More options">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <button class="close-btn" (click)="closeCompose()">Close</button>
+                </div>
+              </div>
+            }
+
+          </div>
+        </div>
+
+        <!-- Pinned notes -->
+        @if (pinnedNotes.length > 0) {
+          <p class="section-label">PINNED</p>
+          <div class="notes-grid">
+            @for (note of pinnedNotes; track note.noteId) {
+              <ng-container *ngTemplateOutlet="noteCard; context: { $implicit: note, pinned: true }"></ng-container>
+            }
+          </div>
+          @if (activeNotes.length > 0) {
+            <p class="section-label">OTHERS</p>
+          }
+        }
+
+        <!-- Active notes -->
+        @if (activeNotes.length > 0) {
+          <div class="notes-grid">
+            @for (note of activeNotes; track note.noteId) {
+              <ng-container *ngTemplateOutlet="noteCard; context: { $implicit: note, pinned: false }"></ng-container>
+            }
+          </div>
+        }
+
+        <!-- Empty state -->
+        @if (activeNotes.length === 0 && pinnedNotes.length === 0 && !isLoading()) {
+          <div class="empty-state">
+            <svg class="empty-icon" width="120" height="120" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+            </svg>
+            <p class="empty-text">Notes you add appear here</p>
+          </div>
+        }
+      }
+
+      <!-- ── ARCHIVE VIEW ── -->
+      @if (currentView === 'archive') {
+        @if (archivedNotes.length > 0) {
+          <div class="notes-grid">
+            @for (note of archivedNotes; track note.noteId) {
+              <div class="note-card" [style.background]="note.color" (click)="openEdit(note)">
+                <div class="note-card__header">
+                  @if (note.title) { <p class="note-title">{{ note.title }}</p> }
+                </div>
+                @if (note.description) { <p class="note-body">{{ note.description }}</p> }
+                <div class="note-card__actions" (click)="$event.stopPropagation()">
+                  <!-- Unarchive -->
+                  <button class="tool-btn" (click)="toggleArchive(note)" aria-label="Unarchive">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20.55 5.22l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.15.55L3.46 5.22C3.17 5.57 3 6.01 3 6.5V19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.49-.17-.93-.45-1.28zM12 9.5l5.5 5.5H14v2h-4v-2H6.5L12 9.5zM5.12 5l.82-1h12l.93 1H5.12z"/>
+                    </svg>
+                  </button>
+                  <!-- Trash -->
+                  <button class="tool-btn" (click)="trashNote(note)" aria-label="Trash">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <svg class="empty-icon" width="120" height="120" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/>
+            </svg>
+            <p class="empty-text">Your archived notes appear here</p>
+          </div>
+        }
+      }
+
+      <!-- ── TRASH VIEW ── -->
+      @if (currentView === 'trash') {
+        @if (trashedNotes.length > 0) {
+          <p class="trash-hint">Notes in Trash are deleted after 7 days</p>
+          <div class="notes-grid">
+            @for (note of trashedNotes; track note.noteId) {
+              <div class="note-card" [style.background]="note.color">
+                <div class="note-card__header">
+                  @if (note.title) { <p class="note-title">{{ note.title }}</p> }
+                </div>
+                @if (note.description) { <p class="note-body">{{ note.description }}</p> }
+                <div class="note-card__actions" (click)="$event.stopPropagation()">
+                  <!-- Recover -->
+                  <button class="tool-btn" (click)="recoverNote(note)" aria-label="Restore">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                    </svg>
+                  </button>
+                  <!-- Delete permanently -->
+                  <button class="tool-btn delete-btn" (click)="deleteNote(note)" aria-label="Delete forever">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <svg class="empty-icon" width="120" height="120" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+            <p class="empty-text">No notes in Trash</p>
+          </div>
+        }
+      }
+
+    </div>
+  </main>
+</div>
+
+<!-- ── Note card template ── -->
+<ng-template #noteCard let-note let-pinned="pinned">
+  <div class="note-card" [style.background]="note.color" (click)="openEdit(note)">
+    <div class="note-card__header">
+      @if (note.title) { <p class="note-title">{{ note.title }}</p> }
+      <button class="pin-btn" [class.active]="pinned"
+              (click)="$event.stopPropagation(); togglePin(note)"
+              [attr.aria-label]="pinned ? 'Unpin' : 'Pin'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+        </svg>
+      </button>
+    </div>
+    @if (note.description) { <p class="note-body">{{ note.description }}</p> }
+    <div class="note-card__actions" (click)="$event.stopPropagation()">
+      <!-- Archive -->
+      <button class="tool-btn" (click)="toggleArchive(note)" aria-label="Archive">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/>
+        </svg>
+      </button>
+      <!-- Color -->
+      <div class="color-picker-wrap">
+        <button class="tool-btn" (click)="toggleColorPicker(note.noteId)" aria-label="Color">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+          </svg>
+        </button>
+        @if (activeColorPicker === note.noteId) {
+          <div class="color-popup">
+            @for (c of colors; track c) {
+              <button class="color-dot" [style.background]="c"
+                      [class.selected]="note.color === c"
+                      (click)="changeColor(note, c)"></button>
+            }
+          </div>
+        }
+      </div>
+      <!-- Trash -->
+      <button class="tool-btn" (click)="trashNote(note)" aria-label="Trash">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ── Edit Modal ── -->
+@if (isEditing() && editingNote) {
+  <div class="modal-backdrop" (click)="cancelEdit()">
+    <div class="modal" [style.background]="editColor" (click)="$event.stopPropagation()">
+      <input class="modal__title" type="text" placeholder="Title"
+             [(ngModel)]="editTitle"/>
+      <textarea class="modal__body" placeholder="Take a note..."
+                [(ngModel)]="editDescription" rows="6"></textarea>
+
+      <!-- Color picker inside modal -->
+      <div class="color-row">
+        @for (c of colors; track c) {
+          <button class="color-dot" [style.background]="c"
+                  [class.selected]="editColor === c"
+                  (click)="editColor = c"></button>
+        }
+      </div>
+
+      <div class="modal__footer">
+        <div class="modal__tools">
+          <!-- Pin -->
+          <button class="tool-btn" [class.active-tool]="editingNote.isPinned"
+                  (click)="togglePin(editingNote)" aria-label="Pin">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+            </svg>
+          </button>
+          <!-- Archive -->
+          <button class="tool-btn" (click)="toggleArchive(editingNote); cancelEdit()" aria-label="Archive">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/>
+            </svg>
+          </button>
+          <!-- Trash -->
+          <button class="tool-btn" (click)="trashNote(editingNote); cancelEdit()" aria-label="Trash">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+          </button>
+        </div>
+        <button class="close-btn" (click)="closeEdit()">Close</button>
+      </div>
+    </div>
+  </div>
+}

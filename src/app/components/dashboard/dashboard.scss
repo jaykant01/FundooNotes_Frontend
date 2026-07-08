@@ -1,0 +1,442 @@
+@use 'sass:color';
+
+$font:         'Google Sans', Arial, sans-serif;
+$text:         #202124;
+$text-sec:     #5f6368;
+$border:       #e0e0e0;
+$hover-bg:     rgba(0,0,0,.06);
+$navbar-h:     64px;
+$drawer-close: 72px;
+$drawer-open:  280px;
+$transition:   0.2s cubic-bezier(.4,0,.2,1);
+
+// ── Layout ────────────────────────────────────────────────────────────────────
+.app-body {
+  display: flex;
+  margin-top: $navbar-h;
+  min-height: calc(100vh - $navbar-h);
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;                              // ← prevents overflow under drawer
+  margin-left: $drawer-close;
+  transition: margin-left $transition;
+  overflow-x: hidden;
+
+  &.drawer-open {
+    margin-left: $drawer-open;
+  }
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+.dashboard {
+  padding: 24px 24px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: $font;
+}
+
+// ── Composer ──────────────────────────────────────────────────────────────────
+.composer-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.composer {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 4px 8px rgba(0,0,0,.06);
+  transition: box-shadow 0.2s;
+
+  &:hover, &.expanded {
+    box-shadow: 0 2px 6px rgba(0,0,0,.15), 0 6px 16px rgba(0,0,0,.08);
+  }
+}
+
+.composer__collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: text;
+  min-height: 46px;
+}
+
+.composer__placeholder {
+  font-size: 16px;
+  color: #80868b;
+  flex: 1;
+}
+
+.composer__actions-row {
+  display: flex;
+  gap: 4px;
+}
+
+.composer__expanded {
+  display: flex;
+  flex-direction: column;
+}
+
+.composer__title {
+  border: none;
+  outline: none;
+  padding: 16px 16px 4px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: $font;
+  color: $text;
+  background: transparent;
+  width: 100%;
+  box-sizing: border-box;
+  &::placeholder { color: #80868b; }
+}
+
+.composer__body {
+  border: none;
+  outline: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: $font;
+  color: $text;
+  background: transparent;
+  resize: none;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 80px;
+  line-height: 1.5;
+  &::placeholder { color: #80868b; }
+}
+
+.composer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 8px 4px;
+  border-top: 1px solid $border;
+}
+
+.composer__tools { display: flex; gap: 2px; }
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-family: $font;
+  font-weight: 500;
+  color: $text-sec;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  &:hover { background: $hover-bg; }
+}
+
+// ── Tool buttons ──────────────────────────────────────────────────────────────
+.tool-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $text-sec;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  &:hover { background: $hover-bg; }
+}
+
+// ── Section labels ────────────────────────────────────────────────────────────
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  color: $text-sec;
+  margin: 0 0 8px 4px;
+  font-family: $font;
+}
+
+// ── Notes grid — masonry like Google Keep ─────────────────────────────────────
+.notes-grid {
+  columns: 5 180px;              // auto masonry columns
+  column-gap: 12px;
+  margin-bottom: 24px;
+
+  // fallback for browsers
+  @supports not (columns: 5 180px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+}
+
+// ── Note card — exact Google Keep style ───────────────────────────────────────
+.note-card {
+  display: inline-block;          // required for columns layout
+  width: 100%;
+  break-inside: avoid;            // don't split card across columns
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s;
+  font-family: $font;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.1);
+
+    .pin-btn          { opacity: 1; }
+    .note-card__actions { opacity: 1; }
+  }
+}
+
+.note-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 24px;
+}
+
+.note-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text;
+  margin: 0 0 8px;
+  line-height: 1.4;
+  flex: 1;
+  word-break: break-word;
+}
+
+.note-body {
+  font-size: 13px;
+  color: $text;
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;             // limit very long notes like Google Keep
+  overflow: hidden;
+}
+
+// ── Pin button ────────────────────────────────────────────────────────────────
+.pin-btn {
+  opacity: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $text-sec;
+  flex-shrink: 0;
+  transition: background 0.15s, opacity 0.15s;
+  padding: 0;
+
+  &:hover  { background: $hover-bg; }
+  &.active {
+    opacity: 1;
+    color: $text;
+  }
+}
+
+// ── Note action bar (shows on hover) ─────────────────────────────────────────
+.note-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 8px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-wrap: wrap;
+
+  .tool-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+// ── Color picker ──────────────────────────────────────────────────────────────
+.color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 16px 4px;
+}
+
+.color-picker-wrap {
+  position: relative;
+}
+
+.color-popup {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 24px;           // pill shape like Google Keep
+  box-shadow: 0 2px 10px rgba(0,0,0,.25);
+  padding: 8px 10px;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  z-index: 100;
+  white-space: nowrap;
+}
+
+.color-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+
+  &:hover    { transform: scale(1.2); }
+  &.selected { border-color: $text; }
+
+  // white dot needs a border to be visible
+  &[style*="#ffffff"], &[style*="#FFFFFF"] {
+    border-color: $border;
+    &.selected { border-color: $text; }
+  }
+}
+
+// ── Edit Modal ────────────────────────────────────────────────────────────────
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 560px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal__title {
+  border: none;
+  outline: none;
+  padding: 16px 16px 4px;
+  font-size: 17px;
+  font-weight: 500;
+  font-family: $font;
+  color: $text;
+  background: transparent;
+  width: 100%;
+  box-sizing: border-box;
+  &::placeholder { color: #80868b; }
+}
+
+.modal__body {
+  border: none;
+  outline: none;
+  padding: 8px 16px 12px;
+  font-size: 14px;
+  font-family: $font;
+  color: $text;
+  background: transparent;
+  resize: none;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 120px;
+  line-height: 1.5;
+  &::placeholder { color: #80868b; }
+}
+
+.modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-top: 1px solid rgba(0,0,0,.1);
+}
+
+.modal__tools { display: flex; gap: 4px; }
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 0 0;
+  gap: 16px;
+  user-select: none;
+}
+
+.empty-icon { color: #e0e0e0; }
+
+.empty-text {
+  font-size: 22px;
+  color: #80868b;
+  font-weight: 400;
+  margin: 0;
+  font-family: $font;
+}
+
+// ── Loading & error ───────────────────────────────────────────────────────────
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: $text-sec;
+  font-size: 15px;
+  font-family: $font;
+}
+
+.api-error {
+  font-size: 13px;
+  color: #d93025;
+  background: #fce8e6;
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 1200px) {
+  .notes-grid { columns: 4 180px; }
+}
+
+@media (max-width: 960px) {
+  .notes-grid { columns: 3 180px; }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0 !important;   // drawer overlays on mobile
+  }
+  .notes-grid  { columns: 2 160px; }
+  .dashboard   { padding: 16px; }
+  .composer    { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .notes-grid { columns: 1; }
+}

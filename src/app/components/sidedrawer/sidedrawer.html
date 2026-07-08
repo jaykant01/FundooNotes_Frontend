@@ -1,0 +1,16 @@
+<nav class="side-drawer" [class.open]="isOpen">
+  <ul class="nav-list">
+    @for (item of navItems; track item.label) {   <!-- ← track by label not route -->
+      <li class="nav-item"
+          [class.active]="activeRoute === item.route"
+          (click)="setActive(item.route)">
+        <div class="nav-item__inner">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path [attr.d]="item.icon"/>
+          </svg>
+          <span class="nav-label">{{ item.label }}</span>
+        </div>
+      </li>
+    }
+  </ul>
+</nav>

@@ -1,0 +1,154 @@
+@use 'sass:color';
+
+$font: 'Google Sans', 'Product Sans', Arial, sans-serif;
+$yellow: #fbbc04;
+$text: #202124;
+$icon: #5f6368;
+$border: #e0e0e0;
+$hover-bg: rgba(0,0,0,.06);
+$search-bg: #f1f3f4;
+$search-focus: #fff;
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid $border;
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 4px;
+  gap: 8px;
+  font-family: $font;
+}
+
+// ── Left ──────────────────────────────────────────────────────────────────────
+.navbar__left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  min-width: 280px; // matches side drawer width
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-decoration: none;
+  &:hover { background: $hover-bg; }
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: $yellow;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 400;
+  color: $text;
+  letter-spacing: -0.5px;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+.navbar__search {
+  flex: 1;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: $search-bg;
+  border-radius: 24px;
+  padding: 0 16px;
+  height: 46px;
+  transition: background 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    background: $search-focus;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2), 0 2px 8px rgba(0,0,0,.1);
+  }
+}
+
+.search-icon {
+  color: $icon;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  font-family: $font;
+  color: $text;
+
+  &::placeholder { color: #80868b; }
+}
+
+// ── Right ─────────────────────────────────────────────────────────────────────
+.navbar__right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+// ── Shared icon button ────────────────────────────────────────────────────────
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $icon;
+  transition: background 0.15s;
+
+  &:hover { background: $hover-bg; }
+}
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
+.avatar-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: $font;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

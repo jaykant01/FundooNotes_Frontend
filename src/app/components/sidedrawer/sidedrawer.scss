@@ -1,0 +1,83 @@
+$font: 'Google Sans', 'Product Sans', Arial, sans-serif;
+$yellow: #fbbc04;
+$yellow-light: #fef9e0;
+$text: #202124;
+$icon: #5f6368;
+$active-text: #202124;
+$hover-bg: rgba(0,0,0,.06);
+$drawer-width: 280px;
+$collapsed-width: 72px;
+
+.side-drawer {
+  position: fixed;
+  top: 64px;       // below navbar
+  left: 0;
+  bottom: 0;
+  width: $collapsed-width;
+  overflow: hidden;
+  transition: width 0.2s cubic-bezier(.4,0,.2,1);
+  z-index: 50;
+  background: #fff;
+  padding-top: 8px;
+
+  &.open {
+    width: $drawer-width;
+  }
+}
+
+// ── Nav list ──────────────────────────────────────────────────────────────────
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px;
+}
+
+.nav-item {
+  border-radius: 0 25px 25px 0;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: background 0.15s;
+
+  &:hover { background: $hover-bg; }
+
+  &.active {
+    background: $yellow-light;
+
+    .nav-icon { color: $active-text; }
+    .nav-label { font-weight: 500; color: $active-text; }
+  }
+}
+
+.nav-item__inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nav-icon {
+  color: $icon;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.nav-label {
+  font-size: 14px;
+  font-family: $font;
+  color: $text;
+  font-weight: 400;
+  opacity: 0;
+  transition: opacity 0.15s 0.05s;
+
+  .open & {
+    opacity: 1;
+  }
+}
+
+// Show labels when drawer is open (parent passes .open class)
+:host(.open-host) .nav-label,
+.side-drawer.open .nav-label {
+  opacity: 1;
+}
